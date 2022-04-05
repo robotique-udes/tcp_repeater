@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+    <node pkg="tcp_repeater" type="tcp_publisher_node.py" name="tcp_publisher" output="screen">
+        <param name="host" value="localhost"/>
+        <param name="port" value="9001"/>
+    </node>
+</launch>
