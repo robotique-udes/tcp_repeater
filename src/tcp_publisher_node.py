@@ -3,6 +3,7 @@
 import rospy
 import socket
 from tcp_repeater.msg import Bytes
+from time import sleep
 
 class TcpPublisher:
     def __init__(self):
@@ -10,29 +11,29 @@ class TcpPublisher:
         self.host = rospy.get_param("~host", "localhost")
         self.port = rospy.get_param("~port", 9001)
         self.bufsize = rospy.get_param("~bufsize", 4096)
-        self.conn = None
+        self.connected = False
         self.s = None
-        rospy.Subscriber("tcp_data_in", Bytes, callback=self.data_cb)
+        rospy.Subscriber("tcp_data_out", Bytes, callback=self.data_cb)
 
     def start(self):
         # Create a TCP/IP socket
-        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-
-        # Connect the socket to the port where the server is listening
-        print('Starting server on %s:%s' % (self.host, self.port))
-        self.s.bind((self.host, self.port))
-        self.s.listen()
-        self.conn, addr = self.s.accept()
-        print("Connection established with " + str(addr))
+        print("Attempting to connect to %s:%d" % (self.host, self.port))
+        while not rospy.is_shutdown() and not self.connected:
+            try:
+                self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.s.connect((self.host, self.port))
+                self.connected = True
+            except socket.error:
+                print("Connection failed. Retrying")
+                sleep(1)
+        print("Successfully connected to %s:%d" % (self.host, self.port))
 
     def stop(self):
         print("Closing socket")
         self.s.close()
 
     def data_cb(self, msg):
-        print("data received")
-        if self.s != None and self.conn != None:
+        if self.s != None and not self.connected:
             print("sending")
             self.conn.sendall(msg.data)
 
