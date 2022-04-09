@@ -33,9 +33,10 @@ class TcpPublisher:
         self.s.close()
 
     def data_cb(self, msg):
-        if self.s != None and not self.connected:
+        print("data_cb")
+        if self.s != None and self.connected:
             print("sending")
-            self.conn.sendall(msg.data)
+            self.s.sendall(msg.data)
 
 
 if __name__ == "__main__":
