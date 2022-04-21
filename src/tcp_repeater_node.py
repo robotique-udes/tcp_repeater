@@ -36,8 +36,6 @@ class TcpRepeater():
             byte_array.header.stamp = rospy.Time.now()
             byte_array.data = data
             self.data_pub.publish(byte_array)
-            if len(data) == 0:
-                break
 
     def stop(self):
         print("Closing socket")
