@@ -30,8 +30,6 @@ class TcpRepeater():
     def run(self):
         while not rospy.is_shutdown():
             data = self.s.recv(self.bufsize)
-            print('received "%s"\n' % data)
-            print("Message length: %d\n" % len(data))
             byte_array = Bytes()
             byte_array.header.stamp = rospy.Time.now()
             byte_array.data = data
